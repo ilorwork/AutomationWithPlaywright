@@ -10,7 +10,7 @@ test.beforeEach(async ({}, testInfo) => {
 });
 
 test("has title", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("");
 
   // Expect a title "to contain" a substring (using Regex).
   await expect(page).toHaveTitle(/MeetMusic/);
