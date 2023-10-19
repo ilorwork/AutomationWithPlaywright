@@ -32,6 +32,12 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     headless: false,
+
+    // httpCredentials: {
+    //   // https://playwright.dev/docs/api/class-testoptions#test-options-http-credentials
+    //   username: "user",
+    //   password: "pass",
+    // },
   },
 
   /* Configure projects for major browsers */
