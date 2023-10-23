@@ -1,4 +1,5 @@
 import { chromium, test } from "@playwright/test";
+// Maybe you'll be able to answer it after making it work - https://stackoverflow.com/questions/47796598/automated-testing-with-smart-card-authentication-selenium-or-other-option
 
 test.describe.skip("handle authentication alert tests", () => {
   test("handle alert according to chatGPT", async ({ page }) => {
