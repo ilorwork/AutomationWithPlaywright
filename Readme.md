@@ -18,4 +18,4 @@ There are two ways to use this project:
 
 ## Aditional steps
 
-- `(.env file?)` - as for now not nedded
+- `(.env file?)` - as for now not needed
