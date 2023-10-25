@@ -27,6 +27,7 @@ export default defineConfig({
     // baseURL: "https://meetmusic.onrender.com/",
     // baseURL: "http://localhost:3000/login",
     baseURL: "http://localhost:3000/",
+    // channel: "chrome", // Make all tests run on the computer's chrome browser
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "retain-on-failure", // on any faliure including retries
