@@ -47,7 +47,11 @@ test.describe("basic login tests", () => {
 
 test.describe("multi session tests", () => {
   test("log in and open another tab", async () => {
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({
+      // Note: all of this configs can be set globally via "use" section in the playwright.config file
+      // headless: false,
+      channel: "chrome", // Make test run on the computer's chrome browser
+    });
     const context = await browser.newContext();
     const page = await context.newPage();
 
