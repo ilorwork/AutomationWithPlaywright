@@ -1,17 +1,17 @@
 import { Locator, Page, expect } from "@playwright/test";
+import basePage from "./basePage";
 
-export default class homePage {
-  private readonly page: Page;
+export default class homePage extends basePage {
   private readonly followingHeader: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.followingHeader = page.getByRole("heading", {
       name: "People you follow",
     });
   }
 
-  public isPageDisplayed = async () => {
+  public isPageDisplayed = async (): Promise<void> => {
     // const spinnerLocator = this.page.locator("[class*=Loader_spinner_]");
     // await expect(spinnerLocator).toBeVisible({ timeout: 10000 });
     // await expect(spinnerLocator).not.toBeVisible();
