@@ -29,7 +29,7 @@ export default class navBarPage extends basePage {
     await this.userIcon.click();
     await this.logOut.click();
     const logInPage = new loginPage(this.page);
-    logInPage.isPageDisplayed();
+    await logInPage.isPageDisplayed();
     return logInPage;
   };
 }
