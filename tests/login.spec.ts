@@ -42,7 +42,7 @@ test.describe("basic login tests", () => {
     const home = await login.doLogin(userEmail, userPassword);
 
     // Expect page to be displayed
-    await home.isDisplayed();
+    await home.isPageDisplayed();
   });
 });
 
@@ -67,7 +67,7 @@ test.describe("login with chrome profile tests", () => {
     await page.goto("");
     const login = new loginPage(page);
     const home = await login.doLogin("a@b.c", "Aa123456");
-    await home.isDisplayed();
+    await home.isPageDisplayed();
   });
 
   test.afterEach(async ({}) => {
@@ -100,13 +100,13 @@ test.describe("multi session tests", () => {
     // First tab
     const login = new loginPage(page);
     const home = await login.doLogin(userEmail, userPassword);
-    await home.isDisplayed();
+    await home.isPageDisplayed();
 
     // Sec tab
     const page2 = await context.newPage();
     page2.goto("");
     const home2 = new homePage(page2);
-    await home2.isDisplayed();
+    await home2.isPageDisplayed();
   });
 
   test("log in in 2 windows", async () => {
@@ -118,7 +118,7 @@ test.describe("multi session tests", () => {
     page.goto("");
     const login = new loginPage(page);
     const home = await login.doLogin(userEmail, userPassword);
-    await home.isDisplayed();
+    await home.isPageDisplayed();
 
     // Sec context
     const context2 = await browser.newContext();
@@ -127,6 +127,6 @@ test.describe("multi session tests", () => {
 
     const login2 = new loginPage(page2);
     const home2 = await login2.doLogin(userEmail, userPassword);
-    await home2.isDisplayed();
+    await home2.isPageDisplayed();
   });
 });

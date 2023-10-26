@@ -11,7 +11,7 @@ export default class homePage {
     });
   }
 
-  public isDisplayed = async () => {
+  public isPageDisplayed = async () => {
     // const spinnerLocator = this.page.locator("[class*=Loader_spinner_]");
     // await expect(spinnerLocator).toBeVisible({ timeout: 10000 });
     // await expect(spinnerLocator).not.toBeVisible();

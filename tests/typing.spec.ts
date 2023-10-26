@@ -9,7 +9,7 @@ test.describe("investigate typing methods behavior", () => {
     await page.goto("");
     const login = new loginPage(page);
     const home = await login.doLogin("a@b.c", "Aa123456");
-    await home.isDisplayed();
+    await home.isPageDisplayed();
   });
 
   test("compare type, pressSequentially, and fill methods", async ({

@@ -26,7 +26,7 @@ export default class loginPage {
     return new homePage(this.page);
   };
 
-  public isDisplayed = async () => {
+  public isPageDisplayed = async () => {
     await expect(this.emailField).toBeVisible();
   };
 

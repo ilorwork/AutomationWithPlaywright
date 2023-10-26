@@ -16,7 +16,7 @@ export default class navBarPage {
     await this.userIcon.click();
     await this.logOut.click();
     const logInPage = new loginPage(this.page);
-    logInPage.isDisplayed();
+    logInPage.isPageDisplayed();
     return logInPage;
   };
 }
