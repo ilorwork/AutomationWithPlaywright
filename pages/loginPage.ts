@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test";
+import { Locator, Page, expect } from "@playwright/test";
 import homePage from "./homePage";
 import newAccountPage from "./newAccountPage";
 
@@ -24,6 +24,10 @@ export default class loginPage {
     await this.passwordField.fill(password);
     await this.loginBtn.click();
     return new homePage(this.page);
+  };
+
+  public isDisplayed = async () => {
+    await expect(this.emailField).toBeVisible();
   };
 
   public gotoNewAccount = async () => {
