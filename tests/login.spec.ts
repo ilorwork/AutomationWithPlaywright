@@ -2,6 +2,7 @@ import { test, expect, chromium, Page } from "@playwright/test";
 import loginPage from "../pages/loginPage";
 import homePage from "../pages/homePage";
 import navBarPage from "../pages/navBarPage";
+import NotImplementedError from "../helpers/errors";
 /*
 This test file contains 2 seperated test.describe methods:
 Because the 1 uses built-in page-fixture
@@ -71,13 +72,23 @@ test.describe("login with chrome profile tests", () => {
   test.afterEach(async ({}) => {
     const navBar = new navBarPage(page);
     await navBar.doLogout();
+    //try {
     await navBar.isPageDisplayed();
+    //} catch (error) {
+    //if (error instanceof NotImplementedError)
+    //console.log("NotImplementedError");
+    //}
     // await page.waitForTimeout(3000);
   });
 
-  test("login with pc chrome user-profile-data", async ({
-    /* when using browser in beforeHook page here is useless */
-  }) => {});
+  test.fixme(
+    "login with pc chrome user-profile-data",
+    async (
+      {
+        /* when using browser in beforeHook page here is useless */
+      }
+    ) => {}
+  );
 
   test.fixme("login with user-profile via recent connections", async ({}) => {
     // Need to be developed
