@@ -71,7 +71,8 @@ test.describe("login with chrome profile tests", () => {
   test.afterEach(async ({}) => {
     const navBar = new navBarPage(page);
     await navBar.doLogout();
-    await page.waitForTimeout(4000);
+    await navBar.isPageDisplayed();
+    // await page.waitForTimeout(3000);
   });
 
   test("login with pc chrome user-profile-data", async ({
