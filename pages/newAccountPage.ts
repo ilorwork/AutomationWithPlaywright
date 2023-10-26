@@ -1,7 +1,8 @@
 import { Locator, Page } from "@playwright/test";
+import basePage from "./basePage";
+import NotImplementedError from "../helpers/errors";
 
-export default class newAccountPage {
-  private readonly page: Page;
+export default class newAccountPage extends basePage {
   private readonly firstName: Locator;
   private readonly lastName: Locator;
   private readonly email: Locator;
@@ -14,11 +15,15 @@ export default class newAccountPage {
   private readonly createNewAccountBtn: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.country = page.getByPlaceholder("Country");
   }
 
-  public pickCountry = async (option: string) => {
+  public isPageDisplayed = (): Promise<void> => {
+    throw new NotImplementedError("This method is not implemented yet");
+  };
+
+  public pickCountry = async (option: string): Promise<void> => {
     await this.country.selectOption(option);
   };
 }
