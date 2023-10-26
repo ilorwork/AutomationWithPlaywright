@@ -59,10 +59,8 @@ test.describe("login with chrome profile tests", () => {
       channel: "chrome",
     });
 
-    // const page = await browserContext.newPage();
     page = browserContext.pages().at(0) as Page;
     if (!page) page = await browserContext.newPage();
-    //throw new Error("Page isn't defined")
 
     await page.goto("");
     const login = new loginPage(page);
