@@ -1,6 +1,7 @@
-import { test, expect, chromium } from "@playwright/test";
+import { test, expect, chromium, Page } from "@playwright/test";
 import loginPage from "../pages/loginPage";
 import homePage from "../pages/homePage";
+import navBarPage from "../pages/navBarPage";
 /*
 This test file contains 2 seperated test.describe methods:
 Because the 1 uses built-in page-fixture
@@ -42,6 +43,45 @@ test.describe("basic login tests", () => {
 
     // Expect page to be displayed
     await home.isDisplayed();
+  });
+});
+
+// Neet to check if there is a way to deny a test from running on a certain browser/environment
+test.describe("login with chrome profile tests", () => {
+  let page: Page;
+
+  test.beforeEach(async ({}, testInfo) => {
+    if (testInfo.project.name !== "chromium") test.skip();
+
+    const userDataDir =
+      "C:\\Users\\Ilor\\AppData\\Local\\Google\\Chrome\\User Data";
+    const browserContext = await chromium.launchPersistentContext(userDataDir, {
+      channel: "chrome",
+    });
+
+    // const page = await browserContext.newPage();
+    page = browserContext.pages().at(0) as Page;
+    if (!page) page = await browserContext.newPage();
+    //throw new Error("Page isn't defined")
+
+    await page.goto("");
+    const login = new loginPage(page);
+    const home = await login.doLogin("a@b.c", "Aa123456");
+    await home.isDisplayed();
+  });
+
+  test.afterEach(async ({}) => {
+    const navBar = new navBarPage(page);
+    await navBar.doLogout();
+    await page.waitForTimeout(4000);
+  });
+
+  test("login with pc chrome user-profile-data", async ({
+    /* when using browser in beforeHook page here is useless */
+  }) => {});
+
+  test.fixme("login with user-profile via recent connections", async ({}) => {
+    // Need to be developed
   });
 });
 
