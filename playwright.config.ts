@@ -5,6 +5,8 @@ import { defineConfig, devices } from "@playwright/test";
  * https://github.com/motdotla/dotenv
  */
 // require('dotenv').config();
+import dotenv from "dotenv";
+dotenv.config(); // Note!!! process.env is being augmented by helpers\env.d.ts file.
 
 /**
  * See https://playwright.dev/docs/test-configuration.
