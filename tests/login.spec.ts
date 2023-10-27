@@ -80,9 +80,14 @@ test.describe("login with chrome profile tests", () => {
     // await page.waitForTimeout(3000);
   });
 
-  test("login with pc chrome user-profile-data", async ({
-    /* when using browser in beforeHook page here is useless */
-  }) => {});
+  test.fixme(
+    "login with pc chrome user-profile-data",
+    async (
+      {
+        /* when using browser in beforeHook page here is useless */
+      }
+    ) => {}
+  );
 
   test.fixme("login with user-profile via recent connections", async ({}) => {
     // Need to be developed
