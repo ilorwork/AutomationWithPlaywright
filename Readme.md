@@ -1,4 +1,8 @@
-# How to use this project:
+# AutomationWithPlaywright
+
+As the name suggests this project is an example automation project using Playwright and TypeScript.
+
+## How to use this project:
 
 There are two ways to use this project:
 
@@ -18,4 +22,14 @@ There are two ways to use this project:
 
 ## Aditional steps
 
-- `(.env file?)` - as for now not needed
+### Environment variables
+
+This project uses [dotenv package](https://github.com/motdotla/dotenv)
+
+Create `.env` file in the root-dir with the following fields <br/>
+
+- `USER_DATA_DIR = "<Your Chrome User Profile path>"` <br/>
+- `USER_EMAIL = "<Your MeetMusic username>"` <br/>
+- `USER_PASSWORD = "<Your MeetMusic password>"` <br/>
+
+**An important note!!! `process.env` is being augmented by `helpers\env.d.ts` file.**

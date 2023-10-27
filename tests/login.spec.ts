@@ -1,14 +1,15 @@
-import { test, expect, chromium } from "@playwright/test";
+import { test, expect, chromium, Page } from "@playwright/test";
 import loginPage from "../pages/loginPage";
 import homePage from "../pages/homePage";
+import navBarPage from "../pages/navBarPage";
+import NotImplementedError from "../helpers/errors";
 /*
 This test file contains 2 seperated test.describe methods:
 Because the 1 uses built-in page-fixture
 and the 2 needed to create Browser and Context for its tests.
 */
 
-const userEmail: string = "a@b.c";
-const userPassword: string = "Aa123456";
+const { USER_DATA_DIR, USER_EMAIL, USER_PASSWORD } = process.env;
 
 test.describe("basic login tests", () => {
   test.beforeEach(async ({ page }) => await page.goto(""));
@@ -21,9 +22,9 @@ test.describe("basic login tests", () => {
 
   test("log in", async ({ page }) => {
     // Do login
-    await page.getByRole("textbox", { name: "email" }).fill(userEmail);
-    await page.getByRole("textbox", { name: "Password" }).fill(userPassword);
-    // All these 3 are the same:
+    await page.getByRole("textbox", { name: "email" }).fill(USER_EMAIL);
+    await page.getByRole("textbox", { name: "Password" }).fill(USER_PASSWORD);
+    // All these 3 are the same: (The third option is a shortcut for line 2 and works only on text)
     // await page.getByRole("button", { name: "log in" }).click();
     // await page.click("text=Log In");
     await page.click("'Log In'");
@@ -38,10 +39,58 @@ test.describe("basic login tests", () => {
 
   test("log in with POM", async ({ page }) => {
     const login = new loginPage(page);
-    const home = await login.doLogin(userEmail, userPassword);
+    const home = await login.doLogin(USER_EMAIL, USER_PASSWORD);
 
     // Expect page to be displayed
-    await home.isDisplayed();
+    await home.isPageDisplayed();
+  });
+});
+
+// Neet to check if there is a way to deny a test from running on a certain browser/environment
+test.describe("login with chrome profile tests", () => {
+  let page: Page;
+
+  test.beforeEach(async ({}, testInfo) => {
+    if (testInfo.project.name !== "chromium") test.skip();
+
+    const browserContext = await chromium.launchPersistentContext(
+      USER_DATA_DIR,
+      {
+        channel: "chrome",
+      }
+    );
+
+    page = browserContext.pages().at(0) as Page;
+    if (!page) page = await browserContext.newPage();
+
+    await page.goto("");
+    const login = new loginPage(page);
+    const home = await login.doLogin(USER_EMAIL, USER_PASSWORD);
+    await home.isPageDisplayed();
+  });
+
+  test.afterEach(async ({}) => {
+    const navBar = new navBarPage(page);
+    await navBar.doLogout();
+    // try {
+    await navBar.isPageDisplayed();
+    // } catch (error) {
+    //   if (error instanceof NotImplementedError) console.error(error.message);
+    // }
+    // await page.waitForTimeout(3000);
+  });
+
+  test.fixme(
+    "login with pc chrome user-profile-data",
+    async (
+      {
+        /* when using browser in beforeHook page here is useless */
+      }
+    ) => {}
+  );
+
+  test.fixme("login with user-profile via recent connections", async ({}) => {
+    // Need to be developed
   });
 });
 
@@ -59,14 +108,14 @@ test.describe("multi session tests", () => {
 
     // First tab
     const login = new loginPage(page);
-    const home = await login.doLogin(userEmail, userPassword);
-    await home.isDisplayed();
+    const home = await login.doLogin(USER_EMAIL, USER_PASSWORD);
+    await home.isPageDisplayed();
 
     // Sec tab
     const page2 = await context.newPage();
     page2.goto("");
     const home2 = new homePage(page2);
-    await home2.isDisplayed();
+    await home2.isPageDisplayed();
   });
 
   test("log in in 2 windows", async () => {
@@ -77,8 +126,8 @@ test.describe("multi session tests", () => {
 
     page.goto("");
     const login = new loginPage(page);
-    const home = await login.doLogin(userEmail, userPassword);
-    await home.isDisplayed();
+    const home = await login.doLogin(USER_EMAIL, USER_PASSWORD);
+    await home.isPageDisplayed();
 
     // Sec context
     const context2 = await browser.newContext();
@@ -86,7 +135,7 @@ test.describe("multi session tests", () => {
     page2.goto("");
 
     const login2 = new loginPage(page2);
-    const home2 = await login2.doLogin(userEmail, userPassword);
-    await home2.isDisplayed();
+    const home2 = await login2.doLogin(USER_EMAIL, USER_PASSWORD);
+    await home2.isPageDisplayed();
   });
 });
