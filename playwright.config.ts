@@ -24,6 +24,8 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: "always" }]],
 
+  // timeout: 5 * 60 * 1000,
+
   // path to the global setup files.
   // globalSetup: require.resolve("./global-setup"),
 
@@ -35,7 +37,7 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: "https://meetmusic.onrender.com/",
     // baseURL: "http://localhost:3000/login",
-    baseURL: "http://localhost:3000/",
+    baseURL: "<App url>",
     // channel: "chrome", // Make all tests run on the computer's chrome browser
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -44,11 +46,18 @@ export default defineConfig({
     video: "retain-on-failure",
     headless: false,
 
+    ignoreHTTPSErrors: true,// ????????????????????
     // httpCredentials: {
     //   // https://playwright.dev/docs/api/class-testoptions#test-options-http-credentials
-    //   username: "user",
-    //   password: "pass",
+    //   username: "C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx",
+    //   password: "<Pfx password>",
     // },
+
+    launchOptions: {
+      slowMo: 100
+    }
+    
+    
   },
 
   /* Configure projects for major browsers */
