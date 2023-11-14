@@ -8,7 +8,7 @@ console.log(pfx)
 const context = await browser.newContext({
   httpsCredentials: {
     certificate: pfx,
-    password: '<Pfx password>'
+    password: process.env.PFX_PASSWORD
   }  
 });
 
@@ -25,7 +25,7 @@ const context = await browser.newContext({
 
   // Assertions to check logged in successfully  
 
-  await page.waitForTimeout(40000)
+  await page.waitForTimeout(20000)
   
 });
 

@@ -29,7 +29,7 @@ test("ff", async () => {
       const authChallengeResponse = {
         response: "ProvideCredentials",
         username: pfx,
-        password: "<Pfx password>",
+        password: process.env.PFX_PASSWORD,
         // pkcs12: /* ArrayBuffer of PFX data */
         // pkcs12: [Buffer.from('C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx').toString('base64')],
       };

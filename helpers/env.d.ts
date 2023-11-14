@@ -10,5 +10,6 @@ declare module NodeJS {
     USER_DATA_DIR: string;
     USER_EMAIL: string;
     USER_PASSWORD: string;
+    PFX_PASSWORD: string;
   }
 }

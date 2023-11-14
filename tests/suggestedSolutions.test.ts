@@ -37,7 +37,7 @@ test.describe("handle authentication alert tests", () => {
         // No need to pass here if you pass from the config file.
         username:
           "C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx",
-        password: "<Pfx password>",
+        password: process.env.PFX_PASSWORD,
       },
     });
     const page = await context.newPage();
@@ -81,7 +81,7 @@ test.describe("handle authentication alert tests", () => {
     const context = await browser.newContext({
       httpsCredentials: {
         certificate: pfx,
-        password: '<Pfx password>'
+        password: process.env.PFX_PASSWORD
       }  
     });
     

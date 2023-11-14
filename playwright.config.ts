@@ -50,7 +50,7 @@ export default defineConfig({
     // httpCredentials: {
     //   // https://playwright.dev/docs/api/class-testoptions#test-options-http-credentials
     //   username: "C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx",
-    //   password: "<Pfx password>",
+    //   password: "<Pfx password>", // process.env.PFX_PASSWORD
     // },
 
     launchOptions: {
