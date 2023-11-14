@@ -16,7 +16,8 @@ test("test first suggestion on github feature request", async () => {
       followRedirect: false,
       agentOptions: {
         // ca: fs.readFileSync("./certs/ca.pem"),
-        pfx: fs.readFileSync("./certs/Jude Law.pfx"),
+        pfx: fs.readFileSync("C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx"),
+        passphrase: process.env.PFX_PASSWORD,
         // passphrase: fs.readFileSync("./certs/user_cert.p12.pwd"),
       },
     };
