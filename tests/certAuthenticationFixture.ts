@@ -3,7 +3,7 @@
 import { test as base, chromium, BrowserContext } from '@playwright/test'
 import fs from 'fs'
 // import ffs from '../certs/'
-import request, { CoreOptions } from 'request'
+import request from 'request'
 
 export const test = base.extend({
     context: async ({ context }, use) => {
@@ -21,7 +21,8 @@ export const test = base.extend({
                 followRedirect: false,
                 agentOptions: {
                     // ca: fs.readFileSync('./certs/ca.pem'),
-                    pfx: fs.readFileSync("./certs/Jude_Law.pfx"),
+                    pfx: fs.readFileSync("C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx"),
+                    passphrase: process.env.PFX_PASSWORD,
                     // passphrase: fs.readFileSync('./certs/user.p12.passwd', 'utf8'),
                 },
             }
