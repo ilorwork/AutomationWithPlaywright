@@ -11,7 +11,7 @@ test.describe("handle authentication alert tests", () => {
   test("handle alert according to chatGPT", async ({ page }) => {
     // NOTE: add alert "alert("myAlert")" at Email field's onChange listener
     // in order to make this test pass.
-    await page.goto("<App url>");
+    await page.goto(process.env.BASE_URL);
 
     // Wait for the alert to appear
     page.on("dialog", (dialog) => {

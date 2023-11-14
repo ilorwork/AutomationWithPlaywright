@@ -4,8 +4,8 @@ import NotImplementedError from "../helpers/errors";
 // import { AuthChallengeResponse } from 'playwright-core/types/protocol/network';
 const fs = require('fs');
 
-
-test("ff", async () => {
+// Looks like those listeners are meant for simple http auth
+test("Try CDPSession's authRequired listener", async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
