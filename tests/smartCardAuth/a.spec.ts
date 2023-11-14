@@ -1,6 +1,6 @@
 import { test, chromium } from "@playwright/test";
 import { AuthChallengeResponse } from "@playwright-core/types/protocol/fetch";
-import NotImplementedError from "../helpers/errors";
+import NotImplementedError from "../../helpers/errors";
 // import { AuthChallengeResponse } from 'playwright-core/types/protocol/network';
 const fs = require('fs');
 

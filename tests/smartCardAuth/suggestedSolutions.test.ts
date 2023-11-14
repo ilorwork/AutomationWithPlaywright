@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // const { Runtime } = CDP;
 
-import NotImplementedError from "../helpers/errors";
+import NotImplementedError from "../../helpers/errors";
 // Maybe you'll be able to answer it after making it work - https://stackoverflow.com/questions/47796598/automated-testing-with-smart-card-authentication-selenium-or-other-option
 
 test.describe("handle authentication alert tests", () => {
