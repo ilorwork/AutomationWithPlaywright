@@ -37,7 +37,7 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: "https://meetmusic.onrender.com/",
     // baseURL: "http://localhost:3000/login",
-    baseURL: "<App url>",
+    baseURL: process.env.BASE_URL,
     // channel: "chrome", // Make all tests run on the computer's chrome browser
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
