@@ -23,7 +23,7 @@ export const test = base.extend<{ page: Page }>({
     try {
       await page.goto("", { timeout: 2000 });
     } catch (error) {
-      ks.setOption("globalDelayPressMillisec", 1000);
+      //   ks.setOption("globalDelayPressMillisec", 1000);
       // Do not touch the keyboard while this code run!!
       await ks.sendKey("down");
       await ks.sendKey("enter");

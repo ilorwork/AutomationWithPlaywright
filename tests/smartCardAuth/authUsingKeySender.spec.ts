@@ -13,7 +13,7 @@ test("test1", async ({ page }) => {
     "שם המשתמש והסיסמא אינם מוכרים"
   );
 
-  await page.waitForTimeout(2000);
+  // await page.waitForTimeout(2000);
 });
 
 test.skip("handle authentication using node-key-sender", async ({ page }) => {
