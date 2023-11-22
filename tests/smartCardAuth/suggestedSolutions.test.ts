@@ -1,6 +1,7 @@
-import { chromium, test, /* Events */ } from "@playwright/test";
+import { chromium, test /* Events */ } from "@playwright/test";
 import * as CDP from "playwright-core";
-const fs = require('fs');
+const fs = require("fs");
+import ks from "node-key-sender";
 
 // const { Runtime } = CDP;
 
@@ -30,7 +31,7 @@ test.describe("handle authentication alert tests", () => {
       slowMo: 50, // slow down actions
     });
 
-    const context = await browser.newContext({
+    const context = await browser.newContext(/* {
       ignoreHTTPSErrors: true, // allow self-signed certs (I'm not sure if needed)
       // provide credentials
       httpCredentials: {
@@ -39,7 +40,7 @@ test.describe("handle authentication alert tests", () => {
           "C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx",
         password: process.env.PFX_PASSWORD,
       },
-    });
+    } */);
     const page = await context.newPage();
 
     // way 2
@@ -52,14 +53,32 @@ test.describe("handle authentication alert tests", () => {
     // const page = await context.newPage();
 
     // way 3
-    await page.keyboard.press("Enter");
+
+    try {
+      await page.goto("", { timeout: 2000 });
+    } catch (error) {
+      if (error instanceof NotImplementedError) console.error(error.message);
+    }
+
+    await ks.sendKey("down");
+    await ks.sendKey("enter");
+    // await page.keyboard.press("accept");
+    // await page.keyboard.press("abort");
+    // await page.keyboard.press("allow");
+    // await page.keyboard.press("click");
+
+    // await page.keyboard.press("Enter");
+    // await page.keyboard.press("Tab");
+    // await page.keyboard.press("Enter");
+    // await page.keyboard.press("F5");
+    // await page.keyboard.press("Enter");
 
     // way 4 - Trying to combine chatGPT suggestion with Cloude's
-    page.on("dialog", (dialog) => {
-      console.log(`Dialog message: ${dialog.message()}`);
-      dialog.dismiss();
-      // dialog.defaultValue()
-    });
+    // page.on("dialog", (dialog) => {
+    //   console.log(`Dialog message: ${dialog.message()}`);
+    //   dialog.dismiss();
+    //   // dialog.defaultValue()
+    // });
 
     await page.goto(""); // should use credentials
 
@@ -70,21 +89,23 @@ test.describe("handle authentication alert tests", () => {
     await browser.close();
   });
 
-  test("check youtube lambda suggestions", async ({browser}) => {
+  test("check youtube lambda suggestions", async ({ browser }) => {
     // const browser = await chromium.launch({
     //   headless: false, // for debugging
     //   slowMo: 50, // slow down actions
     // });
 
-    const pfx = fs.readFileSync('C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx');
-    console.log(pfx)
+    const pfx = fs.readFileSync(
+      "C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx"
+    );
+    console.log(pfx);
     const context = await browser.newContext({
       httpsCredentials: {
         certificate: pfx,
-        password: process.env.PFX_PASSWORD
-      }  
+        password: process.env.PFX_PASSWORD,
+      },
     });
-    
+
     const page = await context.newPage();
 
     // Establish CDP session
