@@ -2,12 +2,14 @@ import { test, chromium } from "@playwright/test";
 import { AuthChallengeResponse } from "@playwright-core/types/protocol/fetch";
 import NotImplementedError from "../../helpers/errors";
 // import { AuthChallengeResponse } from 'playwright-core/types/protocol/network';
-const fs = require('fs');
+const fs = require("fs");
 
 // Looks like those listeners are meant for simple http auth
 test("Try CDPSession's authRequired listener", async () => {
   const browser = await chromium.launch();
-  const context = await browser.newContext();
+  const context = await browser.newContext({
+    ignoreHTTPSErrors: true,
+  });
   const page = await context.newPage();
 
   // Establish CDP session
@@ -37,7 +39,7 @@ test("Try CDPSession's authRequired listener", async () => {
       const response: AuthChallengeResponse = {
         response: "ProvideCredentials",
         username: "myusername",
-        password: "mypassword"
+        password: "mypassword",
       };
 
       // Send auth response
@@ -55,11 +57,17 @@ test("Try CDPSession's authRequired listener", async () => {
   // // Navigate to page
   // await page.goto("", options);
   try {
-    await page.goto("", { timeout: 2000 });
+    await page.goto("//", { timeout: 2000 });
   } catch (error) {
     if (error instanceof NotImplementedError) console.error(error.message);
   }
-  await page.waitForTimeout(8000);
+  await page.waitForTimeout(1000);
+  await client.send("Page.setBypassCSP", {
+    enabled: true,
+  });
+  await page.waitForTimeout(1000);
+
+  await page.keyboard.press("Enter");
 
   await page.goto("", { timeout: 2000 });
 
@@ -67,10 +75,8 @@ test("Try CDPSession's authRequired listener", async () => {
   await browser.close();
 });
 
-
 // import { SyncPlaywright } from 'playwright';
 // test("bard", async () => {
-
 
 //   // Create a new browser context
 //   // const playwright = new SyncPlaywright();
@@ -110,6 +116,5 @@ test("Try CDPSession's authRequired listener", async () => {
 
 //   // Close the browser context
 //   await context.close();
-
 
 // });

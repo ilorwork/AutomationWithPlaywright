@@ -46,7 +46,7 @@ export default defineConfig({
     video: "retain-on-failure",
     headless: false,
 
-    ignoreHTTPSErrors: true,// ????????????????????
+    ignoreHTTPSErrors: true, // ????????????????????
     // httpCredentials: {
     //   // https://playwright.dev/docs/api/class-testoptions#test-options-http-credentials
     //   username: "C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx",
@@ -54,17 +54,22 @@ export default defineConfig({
     // },
 
     launchOptions: {
-      slowMo: 100
-    }
-    
-    
+      slowMo: 100,
+    },
   },
+
+  // globalSetup:
 
   /* Configure projects for major browsers */
   projects: [
     {
+      name: "setup",
+      testMatch: /global.setup\.ts/,
+    },
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      // dependencies: ["setup"],
     },
 
     // {

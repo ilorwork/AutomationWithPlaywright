@@ -41,4 +41,7 @@ test("test first suggestion on github feature request", async () => {
     };
     return request(options, handler);
   });
+
+  const page = await context.newPage();
+  await page.goto("")
 });
