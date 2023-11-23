@@ -17,7 +17,7 @@ import { Page, test as base } from "@playwright/test";
 //   },
 // });
 
-export const test = base.extend<{ page: Page }>({
+const test = base.extend<{ page: Page }>({
   // the <{ page: Page }> is not mandatory, but it looks like I should add it.
   page: async ({ page }, use) => {
     try {
@@ -32,6 +32,8 @@ export const test = base.extend<{ page: Page }>({
     // i don't understand why it behave like that or what it does and where it came from.
   },
 });
+
+export default test;
 
 /* 
 the key to make it work was to call `await use(page)` at the end of the fixture setup.

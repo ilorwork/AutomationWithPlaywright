@@ -1,7 +1,7 @@
 import ks from "node-key-sender";
 import NotImplementedError from "../../helpers/errors";
 import { expect } from "@playwright/test";
-import { test } from "../../fixtures/pfxLoginFixture";
+import test from "../../fixtures/pfxLoginFixture";
 
 test("test1", async ({ page }) => {
   await page.locator("#edit-name").fill("fdsafdsa");
