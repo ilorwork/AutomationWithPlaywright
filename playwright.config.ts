@@ -60,10 +60,9 @@ export default defineConfig({
     },
   },
 
-  // globalSetup:
-
   /* Configure projects for major browsers */
   projects: [
+    // globalSetup:
     {
       name: "setup",
       testMatch: /global.setup\.ts/,
