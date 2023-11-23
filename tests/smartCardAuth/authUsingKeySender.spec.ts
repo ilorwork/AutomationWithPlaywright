@@ -3,7 +3,7 @@ import NotImplementedError from "../../helpers/errors";
 import { expect } from "@playwright/test";
 import test from "../../fixtures/pfxLoginFixture";
 
-test("test1", async ({ page }) => {
+test("handle auth with node-key-sender using fixture", async ({ page }) => {
   await page.locator("#edit-name").fill("fdsafdsa");
   await page.locator("#edit-pass").fill("54235423");
   await page.locator("#edit-submit").click();
