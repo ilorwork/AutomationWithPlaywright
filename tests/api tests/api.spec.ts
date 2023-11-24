@@ -1,3 +1,4 @@
+// https://playwright.dev/docs/api-testing#writing-api-test
 import { test, expect } from "@playwright/test";
 
 const { BASE_URL } = process.env;
