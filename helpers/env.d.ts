@@ -7,6 +7,7 @@ Now it's props typed the way we need (string instead of string | undefined)
 */
 declare module NodeJS {
   interface ProcessEnv {
+    BASE_URL: string;
     USER_DATA_DIR: string;
     USER_EMAIL: string;
     USER_PASSWORD: string;
