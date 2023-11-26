@@ -49,13 +49,17 @@ export default defineConfig({
     //   username: "user",
     //   password: "pass",
     // },
+
+    launchOptions: {
+      args: ["--start-maximized"],
+    },
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: { /* ...devices["Desktop Chrome"], */ viewport: null },
     },
 
     // {
