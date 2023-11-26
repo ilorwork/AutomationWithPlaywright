@@ -57,6 +57,7 @@ export default defineConfig({
 
     launchOptions: {
       slowMo: 100,
+      args: ["--start-maximized"],
     },
   },
 
@@ -69,7 +70,7 @@ export default defineConfig({
     },
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] /* storageState: STORAGE_STATE */ },
+      use: { /* ...devices["Desktop Chrome"], */ viewport: null/* storageState: STORAGE_STATE */ },
       // dependencies: ["setup"],
     },
 
