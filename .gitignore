@@ -4,5 +4,7 @@ node_modules/
 /playwright/.cache/
 /blob-report/
 
+playwriht/.auth/
+
 .env
-playwright/.auth/
+hiddenTests/
