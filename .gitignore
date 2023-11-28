@@ -5,6 +5,7 @@ node_modules/
 /blob-report/
 
 playwriht/.auth/
+playwright/.auth/user.json
 
 .env
 hiddenTests/
