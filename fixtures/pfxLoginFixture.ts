@@ -28,8 +28,9 @@ const test = base.extend<{ page: Page }>({
       await ks.sendKey("down");
       await ks.sendKey("enter");
     }
-    await use(page); // looks like the this use call need to be at the end of this code.
-    // i don't understand why it behave like that or what it does and where it came from.
+
+    // The use command is triggering the test and executes all the test steps. When the test is done, it returns to the fixture and continues to the next available step.
+    await use(page);
   },
 });
 
