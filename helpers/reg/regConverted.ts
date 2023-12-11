@@ -13,7 +13,7 @@ export default class UseRegistryKey {
   ) {
     try {
       const policyUrl = "chrome://policy/";
-      this.deleteRegFilesFromTempFile();
+      // this.deleteRegFilesFromTempFile();
       this.creatRegFilesInTempFile(certificateName, env);
       this.writeRegistryUsingCMD();
 
@@ -26,6 +26,7 @@ export default class UseRegistryKey {
         (await reloadPoliciesBtn.isEnabled());
       if (isClickable) {
         await reloadPoliciesBtn.click();
+        // Broken noPoliciesSet locator.......
         const noPoliciesSet = page.locator("//*[.='No policies set']");
         await expect(noPoliciesSet).not.toBeVisible();
         // new ElementBase("//*[.='No policies set']").WaitUntilDisappeared(40);
@@ -44,6 +45,11 @@ export default class UseRegistryKey {
     );
     try {
       exec(`regedit.exe /s "${filePath}"`);
+      // REG is better - https://stackoverflow.com/a/35065236
+      // exec(`REG IMPORT "${filePath}"`);
+      // const child = exec('REG IMPORT "' + filePath + '"', {}, (error) => {
+      // console.error(error); // an AbortError
+      // });
     } catch (error) {
       throw error;
     }
@@ -53,22 +59,27 @@ export default class UseRegistryKey {
     const s = "\\";
 
     const file = fs.openSync(
-      path.join(this.getFileAdDTOReg(), `GoogleAutoSelectCertAdd.txt`),
+      path.join(this.getFileAdDTOReg(), `GoogleAutoSelectCertAdd.reg`), // was .txt and I changed to .reg
       "w"
     );
+
+    // [HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome\AutoSelectCertificateForUrls]
+    // "1"="{\"pattern\":\"https://www.example.com\",\"filter\":{\"ISSUER\":{\"CN\":\"certificate issuer name\", \"L\": \"certificate issuer location\", \"O\": \"certificate issuer org\", \"OU\": \"certificate issuer org unit\"}, \"SUBJECT\":{\"CN\":\"certificate subject name\", \"L\": \"certificate subject location\", \"O\": \"certificate subject org\", \"OU\": \"certificate subject org unit\"}}}"
 
     fs.writeSync(file, `Windows Registry Editor Version 5.00\n`);
     fs.writeSync(
       file,
-      `[HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]\n`
+      `[HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]\n\n`
     );
     fs.writeSync(
       file,
-      `"1"="{${s}"pattern${s}":${s}"${env}${s}",${s}"filter${s}":{"${s}"SUBJECT${s}":{"${s}"CN${s}":${s}"${certificateName}${s}"}}}"`
+      `"1"="{${s}"pattern${s}":${s}"${env}${s}",${s}"filter${s}":{${s}"SUBJECT${s}":{${s}"CN${s}":${s}"${certificateName}${s}"}}}"`
+      // `"1"="{\"pattern\":\"${env}\",\"filter\":{\"SUBJECT\":{\"CN\":\"${certificateName}\"`;
     );
     fs.closeSync(file);
 
-    const removeContent = `
+    // The '-' character in front of a registry key in a registry file indicates that the key should be deleted.
+    const regKeyRemovingStr = `
       Windows Registry Editor Version 5.00
   
       [-HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]
@@ -76,7 +87,7 @@ export default class UseRegistryKey {
 
     writeFileSync(
       this.getFileAdDTOReg() + "GoogleAutoSelectCertRemove.reg",
-      removeContent
+      regKeyRemovingStr
     );
   }
 
@@ -86,7 +97,9 @@ export default class UseRegistryKey {
       `GoogleAutoSelectCertRemove.reg`
     );
     try {
-      exec(`regedit.exe /s "${filePath}"`);
+      // exec(`regedit.exe /s "${filePath}"`);
+      // REG is better - https://stackoverflow.com/a/35065236
+      exec(`REG IMPORT "${filePath}"`); // Check REG DELETE instead of [-key] way.
     } catch (error) {
       throw error;
     }

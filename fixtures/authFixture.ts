@@ -1,5 +1,5 @@
-import UseRegistryKey from "../helpers/reg2";
-let page: Page;
+import UseRegistryKey from "../helpers/reg/regConverted";
+// let page: Page;
 export default async ({ page }) => {
   await page.addInitScript(async ({ page }) => {
     page.goToAuthURL = async (certificateName: string, url: string) => {
@@ -15,7 +15,11 @@ export default async ({ page }) => {
 
   const goToURL = async (certificateName: string, url: string) => {
     try {
-      await UseRegistryKey.addRegAutoSelectCertificate(certificateName, url);
+      await UseRegistryKey.addRegAutoSelectCertificate(
+        certificateName,
+        url,
+        page
+      );
       await page.goto(url);
       await UseRegistryKey.removeRegAutoSelectCertificate();
     } catch (e) {

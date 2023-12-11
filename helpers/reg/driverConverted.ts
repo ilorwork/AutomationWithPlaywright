@@ -11,21 +11,21 @@ export default class AuthPage {
   }
 
   public async goToAuthURL(certificateName: string, url: string) {
-    const securityUrl = "https://sc.st.login.gov.il/nidp/idff/sso?id=TamuzCard";
-    const selectTamuzCardUrl =
-      "https://st.login.gov.il/nidp/idff/sso?id=TamuzCard";
+    // const securityUrl = "https://sc.st.login.gov.il/nidp/idff/sso?id=TamuzCard";
+    // const selectTamuzCardUrl =
+    //   "https://st.login.gov.il/nidp/idff/sso?id=TamuzCard";
 
-    try {
-      await this.page.goto("", { timeout: 2000 });
-    } catch (error) {
-      if (error instanceof NotImplementedError) console.error(error.message);
-    }
-    await this.goToURL(certificateName, securityUrl);
-    await this.goToURL(certificateName, selectTamuzCardUrl);
-    await this.page.goto(url);
+    // try {
+    //   // await this.page.goto("", { timeout: 2000 });
+    // } catch (error) {
+    //   if (error instanceof NotImplementedError) console.error(error.message);
+    // }
+    // await this.goToURL(certificateName, securityUrl);
+    // await this.goToURL(certificateName, selectTamuzCardUrl);
+    await this.signUserToRegAndNav(certificateName, url);
   }
 
-  private async goToURL(certificateName: string, url: string) {
+  private async signUserToRegAndNav(certificateName: string, url: string) {
     try {
       await UseRegistryKey.addRegAutoSelectCertificate(
         certificateName,
