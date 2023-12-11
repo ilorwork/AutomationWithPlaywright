@@ -9,3 +9,4 @@ playwright/.auth/user.json
 
 .env
 hiddenTests/
+tests/smartCardAuth/certs/

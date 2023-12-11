@@ -3,13 +3,14 @@ import loginPage from "../pages/loginPage";
 import homePage from "../pages/homePage";
 import navBarPage from "../pages/navBarPage";
 import NotImplementedError from "../helpers/errors";
+import { getEnvVars } from "../helpers/envVars";
 /*
 This test file contains 2 seperated test.describe methods:
 Because the 1 uses built-in page-fixture
 and the 2 needed to create Browser and Context for its tests.
 */
 
-const { USER_DATA_DIR, USER_EMAIL, USER_PASSWORD } = process.env;
+const { USER_DATA_DIR, USER_EMAIL, USER_PASSWORD } = getEnvVars(process.env);
 
 test.describe("basic login tests", () => {
   test.beforeEach(async ({ page }) => await page.goto(""));
@@ -46,11 +47,11 @@ test.describe("basic login tests", () => {
   });
 });
 
-// Neet to check if there is a way to deny a test from running on a certain browser/environment
 test.describe("login with chrome profile tests", () => {
   let page: Page;
 
   test.beforeEach(async ({}, testInfo) => {
+    // Prevent the test from running on a certain browser/environment
     if (testInfo.project.name !== "chromium") test.skip();
 
     const browserContext = await chromium.launchPersistentContext(
@@ -72,25 +73,21 @@ test.describe("login with chrome profile tests", () => {
   test.afterEach(async ({}) => {
     const navBar = new navBarPage(page);
     await navBar.doLogout();
-    // try {
     await navBar.isPageDisplayed();
-    // } catch (error) {
-    //   if (error instanceof NotImplementedError) console.error(error.message);
-    // }
-    // await page.waitForTimeout(3000);
   });
 
   test.fixme(
     "login with pc chrome user-profile-data",
     async (
       {
-        /* when using browser in beforeHook page here is useless */
+        /* when using browser in beforeHook, page here is useless */
       }
     ) => {}
   );
 
   test.fixme("login with user-profile via recent connections", async ({}) => {
     // Need to be developed
+    throw new NotImplementedError("Incomplete test");
   });
 });
 
