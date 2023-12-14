@@ -1,52 +1,84 @@
 import os from "os";
 import path from "path";
-import fs, { writeFileSync, unlinkSync } from "fs";
+import fs from "fs";
 import { exec } from "child_process";
-import { Page, expect } from "@playwright/test";
-// import { TempDirectory } from 'tmp-promise';
+import { Page } from "@playwright/test";
+import { unlink } from "fs/promises";
 
+// Investigate if creating this code as page fixture, setup proj, or beforeAll.
 export default class UseRegistryKey {
-  static async addRegAutoSelectCertificate(
+  public static async signUserToRegAndNav(
     certificateName: string,
-    env: string,
+    url: string,
     page: Page
   ) {
-    try {
-      const policyUrl = "chrome://policy/";
-      // this.deleteRegFilesFromTempFile();
-      this.creatRegFilesInTempFile(certificateName, env);
-      this.writeRegistryUsingCMD();
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      await page.goto(policyUrl);
-      const reloadPoliciesBtn = page.locator("//*[@id='reload-policies']");
-      // var reloadPoliciesBtn = new Clickable("//*[@id='reload-policies']");
-      const isClickable =
-        (await reloadPoliciesBtn.isVisible()) &&
-        (await reloadPoliciesBtn.isEnabled());
-      if (isClickable) {
-        await reloadPoliciesBtn.click();
-        // Broken noPoliciesSet locator.......
-        const noPoliciesSet = page.locator("//*[.='No policies set']");
-        await expect(noPoliciesSet).not.toBeVisible();
-        // new ElementBase("//*[.='No policies set']").WaitUntilDisappeared(40);
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    } catch (error) {
-      // Why catch is empty??
-    }
+    UseRegistryKey.createRegFiles(certificateName, url);
+    UseRegistryKey.executeAddRegFile(); // Computer\HKEY_CURRENT_USER\Software\Policies\Google\Chrome\AutoSelectCertificateForUrls
+    await UseRegistryKey.confirmPolicyAddition(page);
+    await page.goto(url);
+    UseRegistryKey.executeRemoveRegPolicyFile();
+    UseRegistryKey.deleteRegFilesFromTempFile(); // do not await it
   }
 
-  private static writeRegistryUsingCMD() {
+  private static createRegFiles(certName: string, url: string) {
+    const s = "\\";
+
+    const file = fs.openSync(
+      path.join(this.getTempFilesPath(), `GoogleAutoSelectCertAdd.reg`), // was .txt and I changed to .reg
+      "w"
+    );
+
+    fs.writeSync(file, `Windows Registry Editor Version 5.00\n`);
+
+    // Reg key
+    fs.writeSync(
+      file,
+      `[HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]\n\n`
+    );
+
+    // Reg value - example from google docs
+    // "1"="{\"pattern\":\"https://www.example.com\",\"filter\":{\"ISSUER\":{\"CN\":\"certificate issuer name\", \"L\": \"certificate issuer location\", \"O\": \"certificate issuer org\", \"OU\": \"certificate issuer org unit\"}, \"SUBJECT\":{\"CN\":\"certificate subject name\", \"L\": \"certificate subject location\", \"O\": \"certificate subject org\", \"OU\": \"certificate subject org unit\"}}}"
+    fs.writeSync(
+      file,
+      `"1"="{${s}"pattern${s}":${s}"${url}${s}",${s}"filter${s}":{${s}"SUBJECT${s}":{${s}"CN${s}":${s}"${certName}${s}"}}}"`
+    );
+    fs.closeSync(file);
+
+    // // The '-' character in front of a registry key in a registry file indicates that the key should be deleted.
+    // const regKeyRemovingStr = `
+    //   Windows Registry Editor Version 5.00
+
+    //   [-HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]
+    // `;
+
+    // writeFileSync(
+    //   this.getFileAdDTOReg() + "GoogleAutoSelectCertRemove.reg",
+    //   regKeyRemovingStr
+    // );
+    const removePolicyFile = fs.openSync(
+      path.join(this.getTempFilesPath(), `GoogleAutoSelectCertRemove.reg`),
+      "w"
+    );
+
+    fs.writeSync(removePolicyFile, `Windows Registry Editor Version 5.00\n`);
+
+    // The '-' character in front of a registry key in a registry file indicates that the key should be deleted.
+    fs.writeSync(
+      removePolicyFile,
+      `[-HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]\n\n`
+    );
+    fs.closeSync(removePolicyFile);
+  }
+
+  private static executeAddRegFile() {
     const filePath = path.join(
-      this.getFileAdDTOReg(),
+      this.getTempFilesPath(),
       `GoogleAutoSelectCertAdd.reg`
     );
     try {
-      exec(`regedit.exe /s "${filePath}"`);
+      // exec(`regedit.exe /s "${filePath}"`);
       // REG is better - https://stackoverflow.com/a/35065236
-      // exec(`REG IMPORT "${filePath}"`);
+      exec(`REG IMPORT "${filePath}"`);
       // const child = exec('REG IMPORT "' + filePath + '"', {}, (error) => {
       // console.error(error); // an AbortError
       // });
@@ -55,45 +87,34 @@ export default class UseRegistryKey {
     }
   }
 
-  private static creatRegFilesInTempFile(certificateName: string, env: string) {
-    const s = "\\";
+  private static async confirmPolicyAddition(page: Page) {
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    const policyUrl = "chrome://policy/";
+    await page.goto(policyUrl);
 
-    const file = fs.openSync(
-      path.join(this.getFileAdDTOReg(), `GoogleAutoSelectCertAdd.reg`), // was .txt and I changed to .reg
-      "w"
-    );
+    let isPolicyLoaded = false;
+    let i = 0;
 
-    // [HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome\AutoSelectCertificateForUrls]
-    // "1"="{\"pattern\":\"https://www.example.com\",\"filter\":{\"ISSUER\":{\"CN\":\"certificate issuer name\", \"L\": \"certificate issuer location\", \"O\": \"certificate issuer org\", \"OU\": \"certificate issuer org unit\"}, \"SUBJECT\":{\"CN\":\"certificate subject name\", \"L\": \"certificate subject location\", \"O\": \"certificate subject org\", \"OU\": \"certificate subject org unit\"}}}"
+    while (!isPolicyLoaded && i < 5) {
+      await page.locator("//*[@id='reload-policies']").click();
 
-    fs.writeSync(file, `Windows Registry Editor Version 5.00\n`);
-    fs.writeSync(
-      file,
-      `[HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]\n\n`
-    );
-    fs.writeSync(
-      file,
-      `"1"="{${s}"pattern${s}":${s}"${env}${s}",${s}"filter${s}":{${s}"SUBJECT${s}":{${s}"CN${s}":${s}"${certificateName}${s}"}}}"`
-      // `"1"="{\"pattern\":\"${env}\",\"filter\":{\"SUBJECT\":{\"CN\":\"${certificateName}\"`;
-    );
-    fs.closeSync(file);
+      const autoSelectCertPolicy = page.getByText(
+        "AutoSelectCertificateForUrls"
+      );
 
-    // The '-' character in front of a registry key in a registry file indicates that the key should be deleted.
-    const regKeyRemovingStr = `
-      Windows Registry Editor Version 5.00
-  
-      [-HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]
-    `;
+      if (await autoSelectCertPolicy.isVisible()) isPolicyLoaded = true;
+      else await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    writeFileSync(
-      this.getFileAdDTOReg() + "GoogleAutoSelectCertRemove.reg",
-      regKeyRemovingStr
-    );
+      i++;
+      if (i === 5 && !isPolicyLoaded) {
+        throw new Error("Faild to load policy in 'chrome://policy/'");
+      }
+    }
   }
 
-  public static removeRegAutoSelectCertificate() {
+  private static async executeRemoveRegPolicyFile() {
     const filePath = path.join(
-      this.getFileAdDTOReg(),
+      this.getTempFilesPath(),
       `GoogleAutoSelectCertRemove.reg`
     );
     try {
@@ -101,24 +122,30 @@ export default class UseRegistryKey {
       // REG is better - https://stackoverflow.com/a/35065236
       exec(`REG IMPORT "${filePath}"`); // Check REG DELETE instead of [-key] way.
     } catch (error) {
-      throw error;
+      console.error("Failed to remove auto select policy from the registry");
     }
   }
 
-  private static deleteRegFilesFromTempFile() {
+  private static async deleteRegFilesFromTempFile() {
     try {
-      unlinkSync(
+      await unlink(
         path.join(
-          UseRegistryKey.getFileAdDTOReg(),
+          UseRegistryKey.getTempFilesPath(),
           `GoogleAutoSelectCertAdd.reg`
         )
       );
-      unlinkSync(this.getFileAdDTOReg() + "GoogleAutoSelectCertRemove.reg");
-    } catch (error) {} // Why catch is empty??
+      await unlink(
+        path.join(
+          UseRegistryKey.getTempFilesPath(),
+          `GoogleAutoSelectCertRemove.reg`
+        )
+      );
+    } catch (error) {
+      console.error("Failed to delete reg files");
+    }
   }
 
-  // Remane it to getRegFilesPath or something after done converting from C#
-  private static getFileAdDTOReg() {
+  private static getTempFilesPath() {
     const tempDir = os.tmpdir();
     const folderPath = path.join(tempDir, "myapp-reg-files");
 
