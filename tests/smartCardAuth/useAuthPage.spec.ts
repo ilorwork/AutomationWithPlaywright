@@ -2,7 +2,7 @@ import test from "@playwright/test";
 // import AuthPage from "../../helpers/reg/driverConverted";
 import UseRegistryKey from "../../helpers/reg/regConverted";
 
-test("Use AuthPage to authenticate", async ({ page }) => {
+test("Use AuthPage to authenticate", async ({}) => {
   // const authPage = new AuthPage(page);
 
   // await page.goto("");
@@ -13,10 +13,10 @@ test("Use AuthPage to authenticate", async ({ page }) => {
   //   process.env.PFX_USER1 as string,
   //   process.env.BASE_URL as string
   // );
+  // await page.pause();
 
   await UseRegistryKey.signUserToRegAndNav(
     process.env.PFX_USER1 as string,
-    process.env.BASE_URL as string,
-    page
+    process.env.BASE_URL as string
   );
 });
