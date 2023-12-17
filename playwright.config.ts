@@ -49,7 +49,7 @@ export default defineConfig({
     headless: false,
 
     channel: "chrome",
-    ignoreHTTPSErrors: true, // ????????????????????
+    // ignoreHTTPSErrors: true, // ????????????????????
     // httpCredentials: {
     //   // https://playwright.dev/docs/api/class-testoptions#test-options-http-credentials
     //   username: "C:\\Users\\ilors\\Downloads\\AutomationWithPlaywright-main\\Jude Law.pfx",
