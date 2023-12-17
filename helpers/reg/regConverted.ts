@@ -34,7 +34,7 @@ export default class UseRegistryKey {
     const s = "\\";
 
     const file = fs.openSync(
-      path.join(this.getTempFilesPath(), `GoogleAutoSelectCertAdd.reg`), // was .txt and I changed to .reg
+      path.join(this.getTempFilesPath(), `GoogleAutoSelectCertAdd.reg`),
       "w"
     );
 
@@ -54,17 +54,6 @@ export default class UseRegistryKey {
     );
     fs.closeSync(file);
 
-    // // The '-' character in front of a registry key in a registry file indicates that the key should be deleted.
-    // const regKeyRemovingStr = `
-    //   Windows Registry Editor Version 5.00
-
-    //   [-HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]
-    // `;
-
-    // writeFileSync(
-    //   this.getFileAdDTOReg() + "GoogleAutoSelectCertRemove.reg",
-    //   regKeyRemovingStr
-    // );
     const removePolicyFile = fs.openSync(
       path.join(this.getTempFilesPath(), `GoogleAutoSelectCertRemove.reg`),
       "w"
