@@ -4,6 +4,10 @@ import fs from "fs";
 import { exec } from "child_process";
 import { Page, chromium } from "@playwright/test";
 import { unlink } from "fs/promises";
+import util from "node:util";
+
+// Use promised exec - https://stackoverflow.com/a/70742322
+const execPromise = util.promisify(exec);
 
 // Investigate if creating this code as page fixture, setup proj, or beforeAll.
 export default class UseRegistryKey {
@@ -12,7 +16,7 @@ export default class UseRegistryKey {
     url: string
   ): Promise<Page> {
     UseRegistryKey.createRegFiles(certificateName, url);
-    UseRegistryKey.executeAddRegFile(); // Computer\HKEY_CURRENT_USER\Software\Policies\Google\Chrome\AutoSelectCertificateForUrls
+    await UseRegistryKey.executeAddRegFile();
 
     const browser = await chromium.launch();
     const context = await browser.newContext();
@@ -20,8 +24,8 @@ export default class UseRegistryKey {
 
     await UseRegistryKey.confirmPolicyAddition(page);
     await page.goto(url);
-    UseRegistryKey.executeRemoveRegPolicyFile();
-    UseRegistryKey.deleteRegFilesFromTempFile(); // do not await it
+    await UseRegistryKey.executeRemoveRegPolicyFile();
+    await UseRegistryKey.deleteRegFilesFromTempFile();
 
     return page;
   }
@@ -76,7 +80,7 @@ export default class UseRegistryKey {
     fs.closeSync(removePolicyFile);
   }
 
-  private static executeAddRegFile() {
+  private static async executeAddRegFile() {
     const filePath = path.join(
       this.getTempFilesPath(),
       `GoogleAutoSelectCertAdd.reg`
@@ -84,7 +88,8 @@ export default class UseRegistryKey {
     try {
       // exec(`regedit.exe /s "${filePath}"`);
       // REG is better - https://stackoverflow.com/a/35065236
-      exec(`REG IMPORT "${filePath}"`);
+      // exec(`REG IMPORT "${filePath}"`);
+      await execPromise(`REG IMPORT "${filePath}"`);
       // const child = exec('REG IMPORT "' + filePath + '"', {}, (error) => {
       // console.error(error); // an AbortError
       // });
@@ -126,7 +131,8 @@ export default class UseRegistryKey {
     try {
       // exec(`regedit.exe /s "${filePath}"`);
       // REG is better - https://stackoverflow.com/a/35065236
-      exec(`REG IMPORT "${filePath}"`); // Check REG DELETE instead of [-key] way.
+      // exec(`REG IMPORT "${filePath}"`); // Check REG DELETE instead of [-key] way.
+      await execPromise(`REG IMPORT "${filePath}"`);
     } catch (error) {
       console.error("Failed to remove auto select policy from the registry");
     }
