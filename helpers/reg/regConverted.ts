@@ -99,26 +99,29 @@ export default class UseRegistryKey {
   }
 
   private static async confirmPolicyAddition(page: Page) {
-    await new Promise((resolve) => setTimeout(resolve, 4000));
     const policyUrl = "chrome://policy/";
     await page.goto(policyUrl);
 
     let isPolicyLoaded = false;
     let i = 0;
+    const tries = 5;
 
-    while (!isPolicyLoaded && i < 5) {
-      await page.locator("//*[@id='reload-policies']").click();
-
+    while (!isPolicyLoaded && i < tries) {
       const autoSelectCertPolicy = page.getByText(
         "AutoSelectCertificateForUrls"
       );
 
       if (await autoSelectCertPolicy.isVisible()) isPolicyLoaded = true;
-      else await new Promise((resolve) => setTimeout(resolve, 2000));
+      else {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await page.locator("//*[@id='reload-policies']").click();
+      }
 
       i++;
-      if (i === 5 && !isPolicyLoaded) {
-        throw new Error("Faild to load policy in 'chrome://policy/'");
+      if (i === tries && !isPolicyLoaded) {
+        throw new Error(
+          `Faild to load AutoSelectCertificateForUrls policy in 'chrome://policy/' after ${tries} tries`
+        );
       }
     }
   }
