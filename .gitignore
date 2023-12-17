@@ -3,4 +3,11 @@ node_modules/
 /playwright-report/
 /playwright/.cache/
 /blob-report/
+
+playwriht/.auth/
+playwright/.auth/user.json
+
 .env
+hiddenTests/
+tests/smartCardAuth/certs/
+
