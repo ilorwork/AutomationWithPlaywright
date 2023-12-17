@@ -15,7 +15,7 @@ export default class UseRegistryKey {
     certificateName: string,
     url: string
   ): Promise<Page> {
-    UseRegistryKey.createRegFiles(certificateName, url);
+    UseRegistryKey.createRegFile(certificateName, url);
     await UseRegistryKey.executeAddRegFile();
 
     const browser = await chromium.launch();
@@ -24,13 +24,13 @@ export default class UseRegistryKey {
 
     await UseRegistryKey.confirmPolicyAddition(page);
     await page.goto(url);
-    await UseRegistryKey.executeRemoveRegPolicyFile();
-    await UseRegistryKey.deleteRegFilesFromTempFile();
+    await UseRegistryKey.deleteRegPolicy();
+    await UseRegistryKey.deleteRegFile();
 
     return page;
   }
 
-  private static createRegFiles(certName: string, url: string) {
+  private static createRegFile(certName: string, url: string) {
     const s = "\\";
 
     const file = fs.openSync(
@@ -53,20 +53,6 @@ export default class UseRegistryKey {
       `"1"="{${s}"pattern${s}":${s}"${url}${s}",${s}"filter${s}":{${s}"SUBJECT${s}":{${s}"CN${s}":${s}"${certName}${s}"}}}"`
     );
     fs.closeSync(file);
-
-    const removePolicyFile = fs.openSync(
-      path.join(this.getTempFilesPath(), `GoogleAutoSelectCertRemove.reg`),
-      "w"
-    );
-
-    fs.writeSync(removePolicyFile, `Windows Registry Editor Version 5.00\n`);
-
-    // The '-' character in front of a registry key in a registry file indicates that the key should be deleted.
-    fs.writeSync(
-      removePolicyFile,
-      `[-HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]\n\n`
-    );
-    fs.closeSync(removePolicyFile);
   }
 
   private static async executeAddRegFile() {
@@ -115,22 +101,17 @@ export default class UseRegistryKey {
     }
   }
 
-  private static async executeRemoveRegPolicyFile() {
-    const filePath = path.join(
-      this.getTempFilesPath(),
-      `GoogleAutoSelectCertRemove.reg`
-    );
+  private static async deleteRegPolicy() {
     try {
-      // exec(`regedit.exe /s "${filePath}"`);
-      // REG is better - https://stackoverflow.com/a/35065236
-      // exec(`REG IMPORT "${filePath}"`); // Check REG DELETE instead of [-key] way.
-      await execPromise(`REG IMPORT "${filePath}"`);
+      await execPromise(
+        `REG DELETE "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls" /f`
+      );
     } catch (error) {
       console.error("Failed to remove auto select policy from the registry");
     }
   }
 
-  private static async deleteRegFilesFromTempFile() {
+  private static async deleteRegFile() {
     try {
       await unlink(
         path.join(
