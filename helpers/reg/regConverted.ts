@@ -2,22 +2,28 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import { exec } from "child_process";
-import { Page } from "@playwright/test";
+import { Page, chromium } from "@playwright/test";
 import { unlink } from "fs/promises";
 
 // Investigate if creating this code as page fixture, setup proj, or beforeAll.
 export default class UseRegistryKey {
   public static async signUserToRegAndNav(
     certificateName: string,
-    url: string,
-    page: Page
-  ) {
+    url: string
+  ): Promise<Page> {
     UseRegistryKey.createRegFiles(certificateName, url);
     UseRegistryKey.executeAddRegFile(); // Computer\HKEY_CURRENT_USER\Software\Policies\Google\Chrome\AutoSelectCertificateForUrls
+
+    const browser = await chromium.launch();
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
     await UseRegistryKey.confirmPolicyAddition(page);
     await page.goto(url);
     UseRegistryKey.executeRemoveRegPolicyFile();
     UseRegistryKey.deleteRegFilesFromTempFile(); // do not await it
+
+    return page;
   }
 
   private static createRegFiles(certName: string, url: string) {
