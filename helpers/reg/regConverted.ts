@@ -1,9 +1,5 @@
-import os from "os";
-import path from "path";
-import fs from "fs";
 import { exec } from "child_process";
 import { Page, chromium } from "@playwright/test";
-import { unlink } from "fs/promises";
 import util from "node:util";
 
 // Use promised exec - https://stackoverflow.com/a/70742322
@@ -15,8 +11,7 @@ export default class UseRegistryKey {
     certificateName: string,
     url: string
   ): Promise<Page> {
-    UseRegistryKey.createRegFile(certificateName, url);
-    await UseRegistryKey.executeAddRegFile();
+    await UseRegistryKey.executeAddRegFile(url, certificateName);
 
     const browser = await chromium.launch();
     const context = await browser.newContext();
@@ -25,49 +20,18 @@ export default class UseRegistryKey {
     await UseRegistryKey.confirmPolicyAddition(page);
     await page.goto(url);
     await UseRegistryKey.deleteRegPolicy();
-    await UseRegistryKey.deleteRegFile();
 
     return page;
   }
 
-  private static createRegFile(certName: string, url: string) {
-    const s = "\\";
+  private static async executeAddRegFile(url: string, certificateName: string) {
+    const key: string =
+      "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
+    const value: string = "1";
+    const data: string = `{\\"pattern\\":\\"${url}\\",\\"filter\\":{\\"SUBJECT\\":{\\"CN\\":\\"${certificateName}\\"}}}`;
 
-    const file = fs.openSync(
-      path.join(this.getTempFilesPath(), `GoogleAutoSelectCertAdd.reg`),
-      "w"
-    );
-
-    fs.writeSync(file, `Windows Registry Editor Version 5.00\n`);
-
-    // Reg key
-    fs.writeSync(
-      file,
-      `[HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls]\n\n`
-    );
-
-    // Reg value - example from google docs
-    // "1"="{\"pattern\":\"https://www.example.com\",\"filter\":{\"ISSUER\":{\"CN\":\"certificate issuer name\", \"L\": \"certificate issuer location\", \"O\": \"certificate issuer org\", \"OU\": \"certificate issuer org unit\"}, \"SUBJECT\":{\"CN\":\"certificate subject name\", \"L\": \"certificate subject location\", \"O\": \"certificate subject org\", \"OU\": \"certificate subject org unit\"}}}"
-    fs.writeSync(
-      file,
-      `"1"="{${s}"pattern${s}":${s}"${url}${s}",${s}"filter${s}":{${s}"SUBJECT${s}":{${s}"CN${s}":${s}"${certName}${s}"}}}"`
-    );
-    fs.closeSync(file);
-  }
-
-  private static async executeAddRegFile() {
-    const filePath = path.join(
-      this.getTempFilesPath(),
-      `GoogleAutoSelectCertAdd.reg`
-    );
     try {
-      // exec(`regedit.exe /s "${filePath}"`);
-      // REG is better - https://stackoverflow.com/a/35065236
-      // exec(`REG IMPORT "${filePath}"`);
-      await execPromise(`REG IMPORT "${filePath}"`);
-      // const child = exec('REG IMPORT "' + filePath + '"', {}, (error) => {
-      // console.error(error); // an AbortError
-      // });
+      await execPromise(`REG ADD "${key}" /v "${value}" /d "${data}"`);
     } catch (error) {
       throw error;
     }
@@ -109,35 +73,5 @@ export default class UseRegistryKey {
     } catch (error) {
       console.error("Failed to remove auto select policy from the registry");
     }
-  }
-
-  private static async deleteRegFile() {
-    try {
-      await unlink(
-        path.join(
-          UseRegistryKey.getTempFilesPath(),
-          `GoogleAutoSelectCertAdd.reg`
-        )
-      );
-      await unlink(
-        path.join(
-          UseRegistryKey.getTempFilesPath(),
-          `GoogleAutoSelectCertRemove.reg`
-        )
-      );
-    } catch (error) {
-      console.error("Failed to delete reg files");
-    }
-  }
-
-  private static getTempFilesPath() {
-    const tempDir = os.tmpdir();
-    const folderPath = path.join(tempDir, "myapp-reg-files");
-
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath);
-    }
-
-    return folderPath;
   }
 }
