@@ -1,23 +1,16 @@
 import { exec } from "child_process";
-import { Page, chromium } from "@playwright/test";
 import util from "node:util";
 
-// Use promised exec - https://stackoverflow.com/a/70742322
-const execPromise = util.promisify(exec);
+const execPromise = util.promisify(exec); // https://stackoverflow.com/a/70742322
 
-// Investigate if creating this code as page fixture, setup proj, or beforeAll.
 export default class UseRegistryKey {
   public static async signUserToRegAndNav(
     certificateName: string,
     url: string
-  ) /* : Promise<Page>  */ {
+  ) {
+    await UseRegistryKey.deleteOldRegPolicy();
     await UseRegistryKey.executeAddRegFile(url, certificateName);
-
-    await UseRegistryKey.confirmPolicyAddition();
-    // await page.goto(url);
-    // await UseRegistryKey.deleteRegPolicy();
-
-    // return page;
+    await UseRegistryKey.confirmPolicyAddition(certificateName);
   }
 
   private static async executeAddRegFile(url: string, certificateName: string) {
@@ -33,40 +26,31 @@ export default class UseRegistryKey {
     }
   }
 
-  private static async confirmPolicyAddition() {
-    const browser = await chromium.launch();
-    const context = await browser.newContext();
-    const page = await context.newPage();
+  private static confirmPolicyAddition = async (certificateName: string) => {
+    const key: string =
+      "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
 
-    const policyUrl = "chrome://policy/";
-    await page.goto(policyUrl);
-
-    let isPolicyLoaded = false;
+    let isPolicyAdded = false;
     let i = 0;
     const tries = 5;
-
-    while (!isPolicyLoaded && i < tries) {
-      const autoSelectCertPolicy = page.getByText(
-        "AutoSelectCertificateForUrls"
-      );
-
-      if (await autoSelectCertPolicy.isVisible()) {
-        isPolicyLoaded = true;
-      } else {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        await page.locator("//*[@id='reload-policies']").click();
+    do {
+      try {
+        const { stdout, stderr } = await execPromise(`reg query "${key}"`);
+        if (stdout.includes(certificateName)) isPolicyAdded = true;
+      } catch (error) {
+        if (error.stderr.includes("unable to find the specified registry key"))
+          await new Promise<void>((resolve) => setTimeout(resolve, 2000));
+        if (i === tries - 1 && !isPolicyAdded)
+          throw new Error(
+            `Faild to find AutoSelectCertificateForUrls policy in registry after ${tries} tries`
+          );
+        else throw error;
       }
-
       i++;
-      if (i === tries && !isPolicyLoaded) {
-        throw new Error(
-          `Faild to load AutoSelectCertificateForUrls policy in 'chrome://policy/' after ${tries} tries`
-        );
-      }
-    }
-  }
+    } while (!isPolicyAdded && i < tries);
+  };
 
-  private static async deleteRegPolicy() {
+  private static async deleteOldRegPolicy() {
     try {
       await execPromise(
         `REG DELETE "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls" /f`
