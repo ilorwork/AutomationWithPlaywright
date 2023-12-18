@@ -75,7 +75,7 @@ export default defineConfig({
         /* ...devices["Desktop Chrome"], */ viewport:
           null /* storageState: STORAGE_STATE */,
       },
-      // dependencies: ["setup"],
+      dependencies: ["setup"],
     },
 
     // {

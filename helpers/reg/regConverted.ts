@@ -10,18 +10,14 @@ export default class UseRegistryKey {
   public static async signUserToRegAndNav(
     certificateName: string,
     url: string
-  ): Promise<Page> {
+  ) /* : Promise<Page>  */ {
     await UseRegistryKey.executeAddRegFile(url, certificateName);
 
-    const browser = await chromium.launch();
-    const context = await browser.newContext();
-    const page = await context.newPage();
+    await UseRegistryKey.confirmPolicyAddition();
+    // await page.goto(url);
+    // await UseRegistryKey.deleteRegPolicy();
 
-    await UseRegistryKey.confirmPolicyAddition(page);
-    await page.goto(url);
-    await UseRegistryKey.deleteRegPolicy();
-
-    return page;
+    // return page;
   }
 
   private static async executeAddRegFile(url: string, certificateName: string) {
@@ -37,7 +33,11 @@ export default class UseRegistryKey {
     }
   }
 
-  private static async confirmPolicyAddition(page: Page) {
+  private static async confirmPolicyAddition() {
+    const browser = await chromium.launch();
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
     const policyUrl = "chrome://policy/";
     await page.goto(policyUrl);
 
@@ -50,8 +50,9 @@ export default class UseRegistryKey {
         "AutoSelectCertificateForUrls"
       );
 
-      if (await autoSelectCertPolicy.isVisible()) isPolicyLoaded = true;
-      else {
+      if (await autoSelectCertPolicy.isVisible()) {
+        isPolicyLoaded = true;
+      } else {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         await page.locator("//*[@id='reload-policies']").click();
       }

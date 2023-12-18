@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.beforeEach(async ({page}, testInfo) => {
+test.beforeEach(async ({ page }, testInfo) => {
   console.log(`Running ${testInfo.title}`); // logs the test name
   // open a URL
   await page.goto("");
