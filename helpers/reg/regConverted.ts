@@ -3,60 +3,47 @@ import util from "node:util";
 
 const execPromise = util.promisify(exec); // https://stackoverflow.com/a/70742322
 
-export default class UseRegistryKey {
-  public static async signUserToRegAndNav(
-    certificateName: string,
-    url: string
-  ) {
-    await UseRegistryKey.deleteOldRegPolicy();
-    await UseRegistryKey.executeAddRegFile(url, certificateName);
-    await UseRegistryKey.confirmPolicyAddition(certificateName);
+const addAutoSelectUserPolicy = async (certName: string, url: string) => {
+  await deleteAutoSelectPolicy();
+  await executeAddRegPolicy(url, certName);
+  await confirmPolicyAddition(certName);
+};
+
+const executeAddRegPolicy = async (url: string, certName: string) => {
+  const key: string =
+    "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
+  const value: string = "1";
+  const data: string = `{\\"pattern\\":\\"${url}\\",\\"filter\\":{\\"SUBJECT\\":{\\"CN\\":\\"${certName}\\"}}}`;
+
+  try {
+    await execPromise(`reg add "${key}" /v "${value}" /d "${data}"`);
+  } catch (error) {
+    throw error;
   }
+};
 
-  private static async executeAddRegFile(url: string, certificateName: string) {
-    const key: string =
-      "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
-    const value: string = "1";
-    const data: string = `{\\"pattern\\":\\"${url}\\",\\"filter\\":{\\"SUBJECT\\":{\\"CN\\":\\"${certificateName}\\"}}}`;
+const confirmPolicyAddition = async (certName: string) => {
+  const key: string =
+    "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
+  const errMsg = `Faild to find AutoSelectCertificateForUrls policy in registry`;
 
-    try {
-      await execPromise(`REG ADD "${key}" /v "${value}" /d "${data}"`);
-    } catch (error) {
-      throw error;
-    }
+  try {
+    const { stdout, stderr } = await execPromise(`reg query "${key}"`);
+    if (!stdout.includes(certName)) throw new Error(`${errMsg}`);
+    console.log("AutoSelectCertificateForUrls policy added successfully");
+  } catch (error) {
+    throw new Error(`${errMsg}, original error: ${error}`);
   }
+};
 
-  private static confirmPolicyAddition = async (certificateName: string) => {
-    const key: string =
-      "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
-
-    let isPolicyAdded = false;
-    let i = 0;
-    const tries = 5;
-    do {
-      try {
-        const { stdout, stderr } = await execPromise(`reg query "${key}"`);
-        if (stdout.includes(certificateName)) isPolicyAdded = true;
-      } catch (error) {
-        if (error.stderr.includes("unable to find the specified registry key"))
-          await new Promise<void>((resolve) => setTimeout(resolve, 2000));
-        if (i === tries - 1 && !isPolicyAdded)
-          throw new Error(
-            `Faild to find AutoSelectCertificateForUrls policy in registry after ${tries} tries`
-          );
-        else throw error;
-      }
-      i++;
-    } while (!isPolicyAdded && i < tries);
-  };
-
-  private static async deleteOldRegPolicy() {
-    try {
-      await execPromise(
-        `REG DELETE "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls" /f`
-      );
-    } catch (error) {
-      console.error("Failed to remove auto select policy from the registry");
-    }
+export const deleteAutoSelectPolicy = async () => {
+  try {
+    await execPromise(
+      `reg delete "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls" /f`
+    );
+  } catch (error) {
+    console.error("Failed to remove auto select policy from the registry");
   }
-}
+};
+
+export default addAutoSelectUserPolicy;
