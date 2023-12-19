@@ -4,6 +4,11 @@ As the name suggests this project is an example automation project using Playwri
 
 This project is trying to cover variuse test cases examples that achivable with Playwright.
 
+> Pre requirements:
+
+- [Node setup](https://nodejs.dev/en/learn/how-to-install-nodejs/)
+- [VS Code setup](https://code.visualstudio.com/learn/get-started/basics)
+
 ## How to use this project:
 
 There are two ways to use this project:
