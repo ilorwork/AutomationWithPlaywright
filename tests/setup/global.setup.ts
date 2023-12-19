@@ -1,5 +1,5 @@
 import { test as setup } from "@playwright/test";
-import addAutoSelectUserPolicy from "../helpers/reg/regConverted";
+import addAutoSelectUserPolicy from "./reg/autoSelectPolicyHandler";
 
 setup("do authenticate", async ({}) => {
   await addAutoSelectUserPolicy(

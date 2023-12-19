@@ -3,6 +3,9 @@ import util from "node:util";
 
 const execPromise = util.promisify(exec); // https://stackoverflow.com/a/70742322
 
+const key: string =
+  "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
+
 const addAutoSelectUserPolicy = async (certName: string, url: string) => {
   await deleteAutoSelectPolicy();
   await executeAddRegPolicy(url, certName);
@@ -10,8 +13,6 @@ const addAutoSelectUserPolicy = async (certName: string, url: string) => {
 };
 
 const executeAddRegPolicy = async (url: string, certName: string) => {
-  const key: string =
-    "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
   const value: string = "1";
   const data: string = `{\\"pattern\\":\\"${url}\\",\\"filter\\":{\\"SUBJECT\\":{\\"CN\\":\\"${certName}\\"}}}`;
 
@@ -23,8 +24,6 @@ const executeAddRegPolicy = async (url: string, certName: string) => {
 };
 
 const confirmPolicyAddition = async (certName: string) => {
-  const key: string =
-    "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
   const errMsg = `Faild to find AutoSelectCertificateForUrls policy in registry`;
 
   try {
@@ -38,9 +37,7 @@ const confirmPolicyAddition = async (certName: string) => {
 
 export const deleteAutoSelectPolicy = async () => {
   try {
-    await execPromise(
-      `reg delete "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls" /f`
-    );
+    await execPromise(`reg delete "${key}" /f`);
   } catch (error) {
     console.error("Failed to remove auto select policy from the registry");
   }
