@@ -48,7 +48,7 @@ export default defineConfig({
     video: "retain-on-failure",
     headless: false,
 
-    channel: "chrome",
+    // channel: "chrome",
     // ignoreHTTPSErrors: true, // ????????????????????
     // httpCredentials: {
     //   // https://playwright.dev/docs/api/class-testoptions#test-options-http-credentials

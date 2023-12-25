@@ -4,7 +4,7 @@ import util from "node:util";
 const execPromise = util.promisify(exec); // https://stackoverflow.com/a/70742322
 
 const key: string =
-  "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Google\\Chrome\\AutoSelectCertificateForUrls";
+  "HKEY_CURRENT_USER\\SOFTWARE\\Policies\\Chromium\\AutoSelectCertificateForUrls";
 
 const addAutoSelectUserPolicy = async (certName: string, url: string) => {
   await deleteAutoSelectPolicy();
