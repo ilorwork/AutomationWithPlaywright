@@ -5,7 +5,6 @@ import path from "path";
 test("simulate drag and drop file", async ({ page }) => {
   await page.goto("https://www.dragdrop.com/test/");
   const fdsa = path.join(__dirname, "../image-1.png");
-  const ele = await page.locator('id="dropzone"').click();
   await dragAndDropFile(page, "#demo-upload", fdsa, "image1");
 });
 
